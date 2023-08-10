@@ -13,6 +13,7 @@ logging.info('Loading weights for keras_ocr: craft_mtl_25k.h5, crnn_kurapan.h5..
 
 import os
 import warnings
+import shutil
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 warnings.filterwarnings('ignore')
@@ -20,28 +21,18 @@ warnings.filterwarnings('ignore')
 from scanner.app_scanner import AppScanner
 
 AppScanner = AppScanner()
-if not os.path.exists(AppScanner.template_path):
-    logging.info('Template directory not found... Creating new template directory...~red')
-    os.makedirs(AppScanner.template_path)
-    logging.info(f'Template directories with path: {AppScanner.template_path} created successfully!~green')
-
-main_template_status = {
-    'templates.json': False,
-    'market': False,
-    'settings': False,
-    'wallet': False
-}
-
-for filename in os.listdir(AppScanner.template_path):
-    if filename in main_template_status.keys():
-        main_template_status[filename] = True
+if os.path.exists(AppScanner.template_path):
+    logging.info('Found old template!~red')
+    for second in range(15, -1, -1):
+        logging.info(f'Deleting old template in {second} sec(s)~red')
+    logging.info('Deleting old template...~red')
+    shutil.rmtree(AppScanner.template_path)
+    logging.info('Old template deleted successfully!~green')
+logging.info('Creating new template directory...~red')
+os.makedirs(AppScanner.template_path)
+logging.info(f'Template directories with path: {AppScanner.template_path} created successfully!~green')
 
 AppScanner.prepare_apps()
-if not all(main_template_status.values()):
-    logging.info('Main template not found!~red')
-    logging.info('Initiating creation of new main template...~yellow')
-    logging.info('Main template created!~green')
-logging.info('Main template found!~green')
-logging.info('Initiating analysis...~green')
+logging.info('Initiating scan...~green')
 AppScanner.start_scanner()
-logging.info('Analysis completed!~green')
+logging.info('Scanning completed!~green')

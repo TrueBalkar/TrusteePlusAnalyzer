@@ -34,7 +34,6 @@ class AppScanner:
         self.textSearcher = TextSearcher()
         self.objectSearcher = ObjectSearcher()
         self.screenshotMaker = ScreenshotMaker()
-        self.app_details = pd.DataFrame()
         self.start_x = copy(self.screenshotMaker.region[0])
         self.start_y = copy(self.screenshotMaker.region[1])
         self.width = copy(self.screenshotMaker.region[2])
@@ -117,7 +116,6 @@ class AppScanner:
                 self.base_images['-'.join(self.current_position)] = self.screenshotMaker.image
                 logging.info(f'Making screenshots on page: {page_name}, image_id: {image_id}~pink')
                 self.get_image_details(data, page_name, images)
-                write_json(self, self.app_details)
             elif self.status == 'Dead':
                 if check_if_scanning_finished(self):
                     return 'Analysis finished'
@@ -161,7 +159,6 @@ class AppScanner:
                 if status not in ['Changed current page', 'No action']:
                     step_back(self)
             analyzed_page_part.append(analyzed_element)
-        self.app_details = pd.concat([self.app_details, pd.DataFrame(analyzed_page_part)], ignore_index=True)
 
     def read_image_details(self):
         while self.run is True:
@@ -211,7 +208,7 @@ class AppScanner:
                                                                   page_name,
                                                                   image_id))
                 data.sort_values('y1', inplace=True)
-                current_mask = create_mask(current_mask)
+                current_mask = create_mask(current_mask, reduce_quality=False)
                 self.textSearcher.draw_boxes(final_image)
                 self.objectSearcher.draw_boxes(final_image)
                 for swap in self.swap:
@@ -262,7 +259,7 @@ class AppScanner:
     def read_objects(self, image, clean_image, draw_boxes=True, empty_results=True):
         mask_image = copy(clean_image)
         self.objectSearcher.image = clean_image
-        mask_image = create_mask(mask_image)
+        mask_image = create_mask(mask_image, reduce_quality=False)
         self.objectSearcher.find_large_objects(mask_image)
         if self.objectSearcher.objects:
             self.objectSearcher.find_small_objects()

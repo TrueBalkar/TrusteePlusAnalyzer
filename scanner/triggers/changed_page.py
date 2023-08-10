@@ -7,7 +7,7 @@ from ..object_searcher.create_mask import create_mask
 def check_for_changed_page(self, base_image, current_image):
     base_mask = create_mask(base_image)
     current_mask = create_mask(current_image)
-    if check_similarity(self, base_mask, current_mask, confidence_coefficient=0.1):
+    if check_similarity(self, base_mask, current_mask, confidence_coefficient=0.1, reduce_quality=False):
         return True
     return False
 
