@@ -16,7 +16,7 @@ from .tools.blacklist_processor import check_if_blacklisted, check_for_blacklist
 from .tools.action_processor import process_action
 from .app_loader.app_loader import open_app, open_browser
 from .tools.make_screenshots import make_screenshots
-from .tools.file_writer import write_image, write_json
+from .tools.file_writer import write_image
 from .tools.queue_manager import get_next_item_from_queue
 from .tools.essentials import (page_depth_exceeds_limit, handle_swap_page, adjust_scroll_position,
                                navigate_and_handle_errors, check_if_scanning_finished, interact_and_verify_action,
@@ -34,6 +34,7 @@ class AppScanner:
         self.textSearcher = TextSearcher()
         self.objectSearcher = ObjectSearcher()
         self.screenshotMaker = ScreenshotMaker()
+        self.app_details = pd.DataFrame()
         self.start_x = copy(self.screenshotMaker.region[0])
         self.start_y = copy(self.screenshotMaker.region[1])
         self.width = copy(self.screenshotMaker.region[2])
@@ -106,6 +107,7 @@ class AppScanner:
                     continue
                 image_id = data['image_id'].iloc[0]
                 if check_for_blacklisted_page(self, data):
+                    self.app_details = pd.concat([self.app_details, data], ignore_index=True)
                     continue
                 if handle_swap_page(self, page_name, data):
                     continue
@@ -159,6 +161,7 @@ class AppScanner:
                 if status not in ['Changed current page', 'No action']:
                     step_back(self)
             analyzed_page_part.append(analyzed_element)
+        self.app_details = pd.concat([self.app_details, pd.DataFrame(analyzed_page_part)], ignore_index=True)
 
     def read_image_details(self):
         while self.run is True:
@@ -174,7 +177,7 @@ class AppScanner:
                 # logging.info('Reading objects...~purple')
                 self.read_objects(current_image, current_mask, draw_boxes=False, empty_results=False)
                 for text in self.textSearcher.text:
-                    if check_if_blacklisted(self, text, ['trusteenative isnt responding']):
+                    if check_if_blacklisted(self, text, ['trustee plus isnt responding']):
                         logging.info(f'Due to page: {page_name} being "app not responding" menu, '
                                      f'it will be blacklisted and skipped!~yellow')
                         self.blacklisted_pages.append(page_name)

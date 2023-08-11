@@ -31,7 +31,7 @@ def navigate(self, path):
         match check_for_action(self, index, path_element):
             case 'Same position':
                 current_full_path = process_same_position(self, path_element, current_full_path)
-            case 'Main pages':
+            case 'Main page':
                 current_full_path = process_main_page(self, path_element)
             case 'Different position':
                 current_full_path, current_scrolls = process_different_position(self, path_element, current_full_path,
@@ -65,10 +65,10 @@ def adjust_position(self, path):
             destination_scrolls = int(path[index].split(':')[0]) if index != 0 else 1
             index = index if index != 0 else 1
             while len(self.current_position) > index:
-                self.base_images.popitem()
-                self.current_position.pop(-1)
                 if step_back(self) == 'Crashed':
                     return 'Error'
+                self.base_images.popitem()
+                self.current_position.pop(-1)
             if current_scrolls > destination_scrolls:
                 move_mouse(self, self.width // 2, self.height // 2)
                 pyautogui.scroll(1)
@@ -81,7 +81,7 @@ def check_for_action(self, index, path_element):
     if path_element == self.current_position[index]:
         return 'Same position'
     elif path_element in self.main_buttons.keys():
-        return 'Main button'
+        return 'Main page'
     else:
         return 'Different position'
 

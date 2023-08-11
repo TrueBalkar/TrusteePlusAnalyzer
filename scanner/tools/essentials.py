@@ -39,9 +39,6 @@ def adjust_scroll_position(self, image_id):
 def navigate_and_handle_errors(self, page_name, data):
     if navigate(self, path=page_name) == 'Error':
         if check_for_blacklisted_page(self, data):
-            data['action'] = 'Blacklisted page'
-            data['clickable'] = False
-            data['analyzed'] = True
             self.app_details = pd.concat([self.app_details, data], ignore_index=True)
         return True
     return False

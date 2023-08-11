@@ -4,7 +4,7 @@ from ..object_searcher.create_mask import create_mask
 def check_for_opened_browser(self, image):
     image_slice = image[int(self.height * 0.005):int(self.height * 0.045),
                         int(self.width * 0.91):int(self.width * 0.99)]
-    mask_image = create_mask(image_slice)
+    mask_image = create_mask(image_slice, reduce_quality=False)
 
     lines = []
     for row in range(mask_image.shape[0] - 1):

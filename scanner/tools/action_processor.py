@@ -22,10 +22,10 @@ def check_action_kind(self, base_image):
     if check_for_changed_page(self, base_image, current_image):
         return 'Changed current page'
 
-    if check_for_text_input(self, current_image):
+    if check_for_text_input(current_image):
         return 'Text input'
 
-    if check_for_dropdown_menu(self, current_image):
+    if check_for_dropdown_menu(current_image):
         return 'Dropdown menu'
 
     if check_if_returned_to_base_images(self):

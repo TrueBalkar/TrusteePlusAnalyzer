@@ -23,8 +23,9 @@ from scanner.app_scanner import AppScanner
 AppScanner = AppScanner()
 if os.path.exists(AppScanner.template_path):
     logging.info('Found old template!~red')
-    for second in range(15, -1, -1):
+    for second in range(15, 0, -1):
         logging.info(f'Deleting old template in {second} sec(s)~red')
+        time.sleep(1)
     logging.info('Deleting old template...~red')
     shutil.rmtree(AppScanner.template_path)
     logging.info('Old template deleted successfully!~green')
