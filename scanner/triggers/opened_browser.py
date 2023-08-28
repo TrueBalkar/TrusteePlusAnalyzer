@@ -1,10 +1,11 @@
 from ..object_searcher.create_mask import create_mask
+from ..navigation.navigator import step_back
 
 
 def check_for_opened_browser(self, image):
     image_slice = image[int(self.height * 0.005):int(self.height * 0.045),
                         int(self.width * 0.91):int(self.width * 0.99)]
-    mask_image = create_mask(image_slice)
+    mask_image = create_mask(image_slice, reduce_quality=False)
 
     lines = []
     for row in range(mask_image.shape[0] - 1):
@@ -38,3 +39,10 @@ def check_for_opened_browser(self, image):
     if any(scores):
         return True
     return False
+
+
+def process_opened_browser(self, page_name):
+    self.screenshotMaker.make_screenshot()
+    self.images.append((self.screenshotMaker.image, page_name, 1))
+    self.blacklisted_pages.append(page_name)
+    step_back(self)

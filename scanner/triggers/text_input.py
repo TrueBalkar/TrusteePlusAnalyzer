@@ -5,8 +5,9 @@ from ..navigation.navigator import step_back
 from ..tools.image_similarity import check_similarity
 
 
-def check_for_text_input(self, current_image):
-    enter_place = current_image[int(self.height * 0.9):, int(self.width * 0.5):]
+def check_for_text_input(current_image):
+    height, width = current_image.shape[:2]
+    enter_place = current_image[int(height * 0.9):, int(width * 0.5):]
     if enter_place[:, :, 2].sum() > (enter_place[:, :, 1].sum() + enter_place[:, :, 0].sum()) * 0.55:
         return True
     return False

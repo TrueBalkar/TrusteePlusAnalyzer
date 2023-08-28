@@ -1,8 +1,16 @@
 from ..navigation.essentials import move_mouse
-from ..navigation.navigator import step_back
+from ..navigation.navigator import step_back, navigate
 from ..tools.image_similarity import check_similarity
 from ..tools.blacklist_processor import check_if_blacklisted
 from ..tools.make_screenshots import make_screenshots
+
+
+def handle_swap_page(self, page_name, data):
+    if page_name in self.swap:
+        navigate(self, path=page_name)
+        process_swap(self, data, page_name)
+        return True
+    return False
 
 
 def process_swap(self, data, parent):
@@ -33,5 +41,6 @@ def process_swap(self, data, parent):
                 step_back(self)
                 break
             make_screenshots(self, parent + '-swap')
+            self.blacklisted_pages.append(parent + '-swap')
             step_back(self)
             break

@@ -2,7 +2,9 @@ import numpy as np
 import cv2
 
 
-def create_mask(image):
+def create_mask(image, reduce_quality=True):
+    if reduce_quality:
+        image = np.array(image[::4, ::4])
     mask = np.zeros(image.shape)
     image = (image // 16) * 16
     for row, color in enumerate(image):
@@ -22,6 +24,8 @@ def create_mask(image):
 
 
 def redraw_mask(image, mask):
+    if image.shape[0] > mask.shape[0]:
+        image = np.array(image[::4, ::4])
     image = (image // 16) * 16
     color = image[0, image.shape[1] // 2, :]
     for row, new_color in enumerate(image):

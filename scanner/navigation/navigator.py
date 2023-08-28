@@ -7,6 +7,9 @@ from ..tools.image_similarity import check_similarity
 
 
 def navigate(self, path):
+    # if len(self.current_position) > 1:
+    #     if not check_if_returned_to_base_images(self):
+    #         step_back(self)
     logging.info(f'Current position: {"-".join(self.current_position)}~cyan')
     logging.info(f'Navigating to position: {path}~cyan')
     current_full_path = ''
@@ -15,12 +18,14 @@ def navigate(self, path):
     # if self.current_position[-1].isdigit():
     #     self.current_position.pop(-1)
     backtrack(self, path)
+    # logging.info(f'Backtracked to: {self.current_position}~yellow')
     position_adjusted = check_for_adjusted_position(self, path)
     if position_adjusted is not None:
         if position_adjusted is False:
             return navigate(self, '-'.join(path))
         else:
             current_scrolls = position_adjusted
+    # logging.info(f'Adjusted position to: {self.current_position}~yellow')
     for index, path_element in enumerate(path):
         while len(self.current_position) <= index:
             self.current_position.append('')
@@ -31,7 +36,7 @@ def navigate(self, path):
         match check_for_action(self, index, path_element):
             case 'Same position':
                 current_full_path = process_same_position(self, path_element, current_full_path)
-            case 'Main pages':
+            case 'Main page':
                 current_full_path = process_main_page(self, path_element)
             case 'Different position':
                 current_full_path, current_scrolls = process_different_position(self, path_element, current_full_path,
@@ -61,14 +66,18 @@ def check_for_adjusted_position(self, path):
 def adjust_position(self, path):
     for index in range(len(self.current_position)):
         if self.current_position[index] != path[index]:
+            logging.info(f'{self.current_position[index]} != {path[index]}, index: {index}~yellow')
             current_scrolls = int(self.current_position[index].split(':')[0]) if index != 0 else 1
             destination_scrolls = int(path[index].split(':')[0]) if index != 0 else 1
             index = index if index != 0 else 1
             while len(self.current_position) > index:
-                self.base_images.popitem()
-                self.current_position.pop(-1)
+                old_position_depth = len(self.current_position)
                 if step_back(self) == 'Crashed':
                     return 'Error'
+                logging.info(f'Adjusted position to: {self.current_position}~yellow')
+                if old_position_depth == len(self.current_position):
+                    self.base_images.popitem()
+                    self.current_position.pop(-1)
             if current_scrolls > destination_scrolls:
                 move_mouse(self, self.width // 2, self.height // 2)
                 pyautogui.scroll(1)
@@ -81,7 +90,7 @@ def check_for_action(self, index, path_element):
     if path_element == self.current_position[index]:
         return 'Same position'
     elif path_element in self.main_buttons.keys():
-        return 'Main button'
+        return 'Main page'
     else:
         return 'Different position'
 
@@ -141,7 +150,7 @@ def check_if_navigated(self, current_full_path, x1, y1, x2, y2):
 
 
 def step_back(self):
-    # logging.info(f'Available steps to go back to... {self.base_images.keys()}~red')
+    logging.info(f'Available steps to go back to... {self.base_images.keys()}~red')
     go_back()
     time.sleep(self.go_back_time)
     destination = '-'.join(self.current_position)

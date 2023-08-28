@@ -4,6 +4,7 @@ from difflib import SequenceMatcher
 from image_loader.image_loader import ScreenshotMaker
 from configs import *
 from .create_mask import create_mask
+from .create_mask import redraw_mask
 
 
 screenshotMaker = ScreenshotMaker()
@@ -44,12 +45,11 @@ class ObjectSearcher:
                                      'height': y2-y1, 'width': x2-x1})
 
     def find_small_objects(self):
-        from PIL import Image
-        from .create_mask import redraw_mask
-        old_objects = [obj for obj in self.objects if obj['height'] > self.height * 0.2 and obj['width'] > self.width * 0.7]
+        old_objects = [obj for obj in self.objects if obj['height'] > self.height * 0.12 and
+                       obj['width'] > self.width * 0.7]
         for box in old_objects:
             image_slice = self.image[box['y1']+10:box['y2']-10, box['x1']+10:box['x2']-10]
-            mask_slice = redraw_mask(image_slice, create_mask(image_slice))
+            mask_slice = redraw_mask(image_slice, create_mask(image_slice, reduce_quality=False))
             self.ungroup_buttons(mask_slice, start_x=box['x1']+10, start_y=box['y1']+10, box=box)
             self.find_large_objects(mask_slice, start_x=box['x1']+10, start_y=box['y1']+10)
 
@@ -61,7 +61,6 @@ class ObjectSearcher:
             if mask[y][c_x:].mean() <= 5:
                 self.objects.append({'x1': start_x, 'y1': start_y + last_y, 'x2': start_x + w, 'y2': start_y + y,
                                      'height': y - last_y, 'width': w})
-                print(mask[y][c_x:].mean())
                 last_y = y
         if last_y > 0:
             self.objects.append({'x1': start_x, 'y1': start_y + last_y, 'x2': start_x + w, 'y2': start_y + h,
@@ -77,7 +76,6 @@ class ObjectSearcher:
                 self.objects.append({'x1': start_x, 'y1': start_y + last_y, 'x2': start_x + w, 'y2': start_y + y,
                                      'height': y - last_y, 'width': w})
                 last_y = y
-                # print(image[y][c_x:].mean())
         if last_y > 0:
             self.objects.append({'x1': start_x, 'y1': start_y + last_y, 'x2': start_x + w, 'y2': start_y + h,
                                  'height': h - last_y, 'width': w})

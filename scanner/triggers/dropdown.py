@@ -3,14 +3,15 @@ from ..navigation.essentials import move_mouse
 from ..object_searcher.create_mask import create_mask
 
 
-def check_for_dropdown_menu(self, current_image):
+def check_for_dropdown_menu(current_image):
     mask = create_mask(current_image)
     max_coverage = 0.05
-    for row_num, row in enumerate(mask[:-int(self.height * 0.2)]):
-        if (row.sum() / 255) / self.width <= max_coverage:
-            for i in range(int(self.height * 0.01)):
-                if (mask[row_num + i].sum() / 255) / self.width <= max_coverage:
-                    max_coverage = (mask[row_num + i].sum() / 255) / self.width
+    height, width = mask.shape[:2]
+    for row_num, row in enumerate(mask[:-int(height * 0.2)]):
+        if (row.sum() / 255) / width <= max_coverage:
+            for i in range(int(height * 0.01)):
+                if (mask[row_num + i].sum() / 255) / width <= max_coverage:
+                    max_coverage = (mask[row_num + i].sum() / 255) / width
                 else:
                     max_coverage = 0.05
                     break
