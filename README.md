@@ -1,6 +1,7 @@
 # TrusteePlusAnalyzer
+Main objective of this project is to automate process of graphical QA.
 ## Version 0.033 alpha of the project          
-Still rough around the edges and very slow, but overall it is working!                   
+Still rough around the edges and very slow, but overall it is working!        
 
 #### How to start scanner:
 1. Open Android studio using command 'sudo android-studio';
