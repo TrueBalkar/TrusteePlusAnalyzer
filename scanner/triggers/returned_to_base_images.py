@@ -1,4 +1,5 @@
 from ..tools.image_similarity import check_similarity
+import logging
 
 
 def check_if_returned_to_base_images(self):
@@ -11,6 +12,12 @@ def check_if_returned_to_base_images(self):
             path = path.split('-')
             if path[-1].isdigit():
                 path.pop(-1)
-            self.current_position = path
-            return True
+            if self.current_position == path:
+                return True
+            else:
+                # logging.info(f'Current position changed from {self.current_position} to {path}~yellow')
+                # for i in range(abs(len(self.current_position) - len(path))):
+                #     self.base_images.popitem()
+                self.current_position = path
+                return True
     return False

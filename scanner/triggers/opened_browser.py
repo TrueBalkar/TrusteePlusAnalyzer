@@ -1,4 +1,5 @@
 from ..object_searcher.create_mask import create_mask
+from ..navigation.navigator import step_back
 
 
 def check_for_opened_browser(self, image):
@@ -38,3 +39,10 @@ def check_for_opened_browser(self, image):
     if any(scores):
         return True
     return False
+
+
+def process_opened_browser(self, page_name):
+    self.screenshotMaker.make_screenshot()
+    self.images.append((self.screenshotMaker.image, page_name, 1))
+    self.blacklisted_pages.append(page_name)
+    step_back(self)

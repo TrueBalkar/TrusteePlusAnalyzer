@@ -17,14 +17,6 @@ def page_depth_exceeds_limit(self, page_name):
     return False
 
 
-def handle_swap_page(self, page_name, data):
-    if page_name in self.swap:
-        navigate(self, path=page_name)
-        process_swap(self, data, page_name)
-        return True
-    return False
-
-
 def adjust_scroll_position(self, image_id):
     if image_id > self.scrolls:
         scroll(self, image_id - self.scrolls)

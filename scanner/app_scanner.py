@@ -18,9 +18,11 @@ from .app_loader.app_loader import open_app, open_browser
 from .tools.make_screenshots import make_screenshots
 from .tools.file_writer import write_image
 from .tools.queue_manager import get_next_item_from_queue
-from .tools.essentials import (page_depth_exceeds_limit, handle_swap_page, adjust_scroll_position,
+from .tools.essentials import (page_depth_exceeds_limit, adjust_scroll_position,
                                navigate_and_handle_errors, check_if_scanning_finished, interact_and_verify_action,
                                check_for_already_existing_page, check_for_wrong_action_report)
+from .triggers.swap import handle_swap_page
+from .triggers.language import handle_language
 
 
 class AppScanner:
@@ -58,7 +60,11 @@ class AppScanner:
         self.scroll_down_mouse_pos = 0.5 - (self.scroll_distance / 2) / 2
         self.tether_coord = {'x1': None, 'y1': None, 'x2': None, 'y2': None}
         self.scrolls = 1
+        self.language_page = []
+        self.swap_title = settings['Navigation']['SwapTitles']
         self.swap = []
+        self.web_viewer_titles = settings['Navigation']['WebViewerTitles']
+        self.web_viewer = []
         self.images = []
         self.data_queue = []
         self.current_position = []
@@ -110,6 +116,8 @@ class AppScanner:
                     self.app_details = pd.concat([self.app_details, data], ignore_index=True)
                     continue
                 if handle_swap_page(self, page_name, data):
+                    continue
+                if handle_language(self, page_name, data):
                     continue
                 adjust_scroll_position(self, image_id)
                 if navigate_and_handle_errors(self, page_name, data):
@@ -214,12 +222,20 @@ class AppScanner:
                 current_mask = create_mask(current_mask, reduce_quality=False)
                 self.textSearcher.draw_boxes(final_image)
                 self.objectSearcher.draw_boxes(final_image)
-                for swap in self.swap:
-                    if swap in page_name:
-                        self.blacklisted_pages.append(page_name)
+                if page_name in self.swap:
+                    logging.info(f'Due to page {page_name} being swap menu, it will be blacklisted~yellow')
+                    self.blacklisted_pages.append(page_name)
+                if page_name in self.web_viewer:
+                    logging.info(f'Due to page {page_name} being displayed in web viewer, '
+                                 f'it will be blacklisted~yellow')
+                    self.blacklisted_pages.append(page_name)
                 for text in data['text'].where(data['type'] == 'text').dropna():
-                    if check_if_blacklisted(self, text, ['swap']):
+                    if check_if_blacklisted(self, text, self.swap_title):
                         self.swap.append(page_name)
+                    if check_if_blacklisted(self, text, ['Language']):
+                        self.language_page.append(page_name)
+                    if check_if_blacklisted(self, text, self.web_viewer_titles):
+                        self.web_viewer.append(page_name)
                     if self.tether_coord['x1'] is None:
                         if check_if_blacklisted(self, text, ['select asset']):
                             object_df = data['text'].where(data['type'] == 'object').dropna()
